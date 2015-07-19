@@ -10,6 +10,9 @@ import tempfile
 from message import Message
 from subprocess import call
 
+import authentication
+import imap
+
 
 def main():
     """The Gmail terminal app main function"""
@@ -17,7 +20,7 @@ def main():
     args = parser.parse_args()
 
     if args.mode is None or args.mode == 'list':
-        pass
+        list_emails()
     elif args.mode == 'compose':
         compose(parse_compose(args))
     elif args.mode == 'reply':
@@ -26,6 +29,8 @@ def main():
         pass
     elif args.mode == 'delete':
         pass
+    else:
+        raise NotImplementedError('Operation not currently supported:' + args.mode)
 
 
 def setup_parser():
@@ -83,6 +88,12 @@ def setup_compose_parser(subparsers):
 def setup_list_parser(subparsers):
     """Set up the argument parser to correctly match listing arguments"""
     return subparsers
+
+
+def list_emails():
+    connection = authentication.authenticate()
+    connection.select('INBOX')
+    imap.list_messages(connection)
 
 
 def parse_compose(args):
